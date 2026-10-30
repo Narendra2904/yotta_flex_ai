@@ -1,0 +1,6 @@
+requirement_id,profile_name,allowed_zone_types,temp_crit_min_c,temp_warn_min_c,temp_warn_max_c,temp_crit_max_c,humidity_crit_min_pct,humidity_crit_max_pct,max_excursion_duration_min,status
+REQ-VACCINE-ULTRA,mRNA Vaccines / Ultra-Cold Cryo (-25C to -15C),ULTRA_LOW_FREEZE,-28.0,-25.0,-15.0,-12.0,10.0,50.0,30,ACTIVE
+REQ-PHARMA-COLD,Refrigerated Biologics & Insulin (+2C to +8C),COLD_STORAGE,1.5,2.0,8.0,9.5,25.0,65.0,45,ACTIVE
+REQ-PERISHABLE-FRESH,Fresh Produce & Dairy (+1C to +6C),"COLD_STORAGE,LOADING_DOCK",0.5,1.0,6.5,8.0,40.0,85.0,60,ACTIVE
+REQ-DRY-AMBIENT,Dry Goods & Standard Tablets (+15C to +25C),"CONTROLLED_ROOM_TEMP,AMBIENT",12.0,15.0,25.0,30.0,15.0,70.0,180,ACTIVE
+REQ-MOISTURE-SENSITIVE,Active API & Moisture Sensitive Reagents,HUMIDITY_CONTROLLED,15.0,18.0,22.0,26.0,10.0,40.0,40,ACTIVE

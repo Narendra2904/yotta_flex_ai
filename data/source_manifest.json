@@ -1,0 +1,68 @@
+{
+  "dataset_name": "warehouse_monitoring_full",
+  "scale": "full",
+  "seed": 20261022,
+  "generated_at": "2026-10-30T10:27:42.801055+00:00",
+  "tables": {
+    "warehouses": {
+      "row_count": 10,
+      "sha256": "4da12f22f877e43056f65c4c147d0a036fa86263f7801cc915d6ce7fbfcfde3d",
+      "csv_path": "data\\csv\\warehouses.csv"
+    },
+    "storage_requirements": {
+      "row_count": 5,
+      "sha256": "aa5fbaa71bdeb384a090b8aacfc5120998c8cf02e477410b51f2d48e64b2bc05",
+      "csv_path": "data\\csv\\storage_requirements.csv"
+    },
+    "zones": {
+      "row_count": 100,
+      "sha256": "a50fc6e6ff2de3b9d574f34b7cc56176514e6e15531631e791c0a97ba470d8d1",
+      "csv_path": "data\\csv\\zones.csv"
+    },
+    "sensors": {
+      "row_count": 500,
+      "sha256": "2e3b008a3b2b96c758da12fda8e20d5c32943faf12e7df25f9827140d71b2aa1",
+      "csv_path": "data\\csv\\sensors.csv"
+    },
+    "door_events": {
+      "row_count": 2500,
+      "sha256": "4d0dc996fd763e2fa2813a1c97f2ee53170556af51941865a6d22132f56d9e90",
+      "csv_path": "data\\csv\\door_events.csv"
+    },
+    "inventory_lots": {
+      "row_count": 10000,
+      "sha256": "a9d0c93865d008e1882ddfaca6ed3fa377bf9acfe4ae35d5aca54bd480eb36b2",
+      "csv_path": "data\\csv\\inventory_lots.csv"
+    },
+    "alarms": {
+      "row_count": 218,
+      "sha256": "b32d470d9a91eb10fdbd222b69256d1fa09d91f27b695a410b9c085ff7d8e7d0",
+      "csv_path": "data\\csv\\alarms.csv"
+    },
+    "alarm_affected_lots": {
+      "row_count": 7464,
+      "sha256": "26ed0f085308a4def45ea59aabd23dd095a2abd61072d1d2a7b2731ae56c4bf2",
+      "csv_path": "data\\csv\\alarm_affected_lots.csv"
+    },
+    "inspections": {
+      "row_count": 218,
+      "sha256": "1e90fde5393ad7f69288b220f164e45d232eef4124a96220f5aa6bf6d6341729",
+      "csv_path": "data\\csv\\inspections.csv"
+    },
+    "remediations": {
+      "row_count": 218,
+      "sha256": "b56eb3388c4e252dd6766648332048e6d8d59ad691d141f1d24694f8f94b294f",
+      "csv_path": "data\\csv\\remediations.csv"
+    },
+    "ground_truth": {
+      "row_count": 312,
+      "sha256": "50537042f652752c1904c09daa788d83bcd802b24178243b915909deb39d6ba2",
+      "csv_path": "data\\ground_truth\\ground_truth.csv"
+    },
+    "sensor_readings": {
+      "row_count": 999863,
+      "sha256": "fe6568830861ce82251a97943dfa32f0191c928183e7a2f711385d50421cd4a6",
+      "csv_path": "data\\csv\\sensor_readings.csv"
+    }
+  }
+}

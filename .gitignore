@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Large generated binaries and datasets (>100MB GitHub limit)
+# Run `python generate_dataset.py --scale full` to regenerate deterministically
+data/sqlite/*.db
+data/csv/sensor_readings.csv
+
+# System / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+tests_tmp_*

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warehouse Risk & Environmental Telemetry Console</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+  <!-- Top Navigation -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-9 w-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-warehouse text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+            Warehouse Environmental & Traceability System
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Live Stream</span>
+          </h1>
+          <p class="text-xs text-slate-400">Multi-Zone Temperature, Humidity, Occupancy & Door Integrity Engine</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="text-right hidden sm:block">
+          <p class="text-xs text-slate-400">Target Scale</p>
+          <p class="text-xs font-semibold text-slate-200">10 WH / 100 Zones / 1M Readings</p>
+        </div>
+        <button onclick="refreshAll()" class="px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrows-rotate text-indigo-400"></i> Refresh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- KPI Header Cards -->
+    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Facilities / Zones</p>
+        <p id="kpi-zones" class="text-2xl font-bold text-white mt-1">- / -</p>
+        <span class="text-[10px] text-slate-500">Monitored 24/7</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Active Alarms</p>
+        <p id="kpi-alarms" class="text-2xl font-bold text-amber-400 mt-1">-</p>
+        <span id="kpi-crit-alarms" class="text-[10px] text-rose-400 font-medium">- Critical</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Sensor Uptime</p>
+        <p id="kpi-uptime" class="text-2xl font-bold text-emerald-400 mt-1">-%</p>
+        <span class="text-[10px] text-slate-500">Telemetry packet rate</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Inventory Lots</p>
+        <p id="kpi-lots" class="text-2xl font-bold text-white mt-1">-</p>
+        <span class="text-[10px] text-slate-500">In-dwell tracking</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Total Valuation</p>
+        <p id="kpi-value" class="text-xl font-bold text-cyan-400 mt-1 font-mono">$0</p>
+        <span class="text-[10px] text-slate-500">Active stock value</span>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Loss at Risk</p>
+        <p id="kpi-loss" class="text-xl font-bold text-rose-400 mt-1 font-mono">$0</p>
+        <span class="text-[10px] text-rose-500/80">Excursion damage</span>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-slate-800 flex space-x-6 text-sm font-medium">
+      <button onclick="switchTab('zones')" id="tab-btn-zones" class="pb-3 border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2">
+        <i class="fa-solid fa-cubes-stacked"></i> Zone Matrix
+      </button>
+      <button onclick="switchTab('alarms')" id="tab-btn-alarms" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation"></i> Alarms & Risk Feed
+      </button>
+      <button onclick="switchTab('traceability')" id="tab-btn-traceability" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+        <i class="fa-solid fa-route"></i> Lot Traceability & Dosage
+      </button>
+      <button onclick="switchTab('sensors')" id="tab-btn-sensors" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+        <i class="fa-solid fa-microchip"></i> Sensor Health
+      </button>
+      <button onclick="switchTab('groundtruth')" id="tab-btn-groundtruth" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+        <i class="fa-solid fa-vial-circle-check"></i> Ground Truth & Anomaly Audit
+      </button>
+    </div>
+
+    <!-- TAB 1: Zone Matrix -->
+    <section id="tab-zones" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Warehouse Zone Environmental Status</h2>
+          <p class="text-xs text-slate-400">Real-time parameters, baseline limits and door open limits by room partition</p>
+        </div>
+      </div>
+      <div id="zones-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered dynamically -->
+        <div class="p-8 text-center text-slate-500">Loading zone telemetry...</div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Alarms & Risk Feed -->
+    <section id="tab-alarms" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Active & Historical Risk Condition Alarms</h2>
+          <p class="text-xs text-slate-400">Triggered by thermal excursions, extended door openings, and sensor dropouts</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <select id="filter-severity" onchange="renderAlarms()" class="bg-slate-900 border border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-200">
+            <option value="">All Severities</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+          </select>
+          <select id="filter-status" onchange="renderAlarms()" class="bg-slate-900 border border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-200">
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 text-slate-400 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="px-4 py-3">Alarm ID</th>
+                <th class="px-4 py-3">Zone</th>
+                <th class="px-4 py-3">Type</th>
+                <th class="px-4 py-3">Severity</th>
+                <th class="px-4 py-3">Duration</th>
+                <th class="px-4 py-3">Trigger / Threshold</th>
+                <th class="px-4 py-3">Affected Lots</th>
+                <th class="px-4 py-3">Loss USD</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="alarms-table-body" class="divide-y divide-slate-800">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Lot Traceability & Exposure -->
+    <section id="tab-traceability" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Spatiotemporal Lot Traceability & Thermal Dosage</h2>
+          <p class="text-xs text-slate-400">Inventory lots identified by spatial and time-window intersection with degree-hours dosage</p>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center gap-4">
+        <label class="text-xs text-slate-300 font-medium">Select Alarm to Trace:</label>
+        <select id="trace-alarm-select" onchange="loadAlarmAffectedLots(this.value)" class="bg-slate-800 border border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-200 flex-1 max-w-md font-mono">
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 text-slate-400 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="px-4 py-3">Lot ID</th>
+                <th class="px-4 py-3">Product SKU</th>
+                <th class="px-4 py-3">Profile Requirement</th>
+                <th class="px-4 py-3">Overlap Duration</th>
+                <th class="px-4 py-3">Degree-Hours</th>
+                <th class="px-4 py-3">Risk Category</th>
+                <th class="px-4 py-3">Quantity</th>
+                <th class="px-4 py-3">Lot Value</th>
+                <th class="px-4 py-3">Lifecycle State</th>
+              </tr>
+            </thead>
+            <tbody id="trace-table-body" class="divide-y divide-slate-800">
+              <tr><td colspan="9" class="p-8 text-center text-slate-500">Select an alarm above to inspect impacted inventory lots.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Sensor Health -->
+    <section id="tab-sensors" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Sensor Fleet Diagnostics & Calibration</h2>
+          <p class="text-xs text-slate-400">Telemetry transmitters, battery telemetry, calibration due dates, and drift compensation</p>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 text-slate-400 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="px-4 py-3">Sensor ID</th>
+                <th class="px-4 py-3">Zone ID</th>
+                <th class="px-4 py-3">Sensor Type</th>
+                <th class="px-4 py-3">Hardware Model</th>
+                <th class="px-4 py-3">Battery %</th>
+                <th class="px-4 py-3">Calibration Due</th>
+                <th class="px-4 py-3">Drift Offset</th>
+                <th class="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody id="sensors-table-body" class="divide-y divide-slate-800">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: Ground Truth & Audit -->
+    <section id="tab-groundtruth" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white">Injected Ground Truth Anomalies & Validation Manifest</h2>
+          <p class="text-xs text-slate-400">Strictly isolated benchmark anomalies for evaluating monitoring coverage and edge case handling</p>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 text-slate-400 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="px-4 py-3">Anomaly ID</th>
+                <th class="px-4 py-3">Issue Type</th>
+                <th class="px-4 py-3">Target Entity</th>
+                <th class="px-4 py-3">Zone</th>
+                <th class="px-4 py-3">Expected Severity</th>
+                <th class="px-4 py-3">Expected Alarm Type</th>
+                <th class="px-4 py-3">Engineering Rationale</th>
+              </tr>
+            </thead>
+            <tbody id="groundtruth-table-body" class="divide-y divide-slate-800">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Remediation Execution Modal -->
+  <div id="remediation-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-indigo-400"></i> Execute Operator Remediation
+        </h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="rem-form" onsubmit="submitRemediation(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Target Alarm ID</label>
+          <input type="text" id="rem-alarm-id" readonly class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-slate-200 font-mono">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Acting Role</label>
+          <select id="rem-role" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-slate-200">
+            <option value="PLANT_OPERATOR">Plant Operator</option>
+            <option value="QUALITY_ENGINEER">Quality Engineer</option>
+            <option value="MAINTENANCE_ENGINEER">Maintenance Engineer</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Remediation Action Type</label>
+          <select id="rem-action" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-slate-200">
+            <option value="LOT_QUARANTINE">LOT_QUARANTINE (Relocate to hold vault)</option>
+            <option value="LOT_CONDEMNATION">LOT_CONDEMNATION (Mark for destruction)</option>
+            <option value="DOOR_SEAL_REPAIR">DOOR_SEAL_REPAIR (Reset physical latch)</option>
+            <option value="SENSOR_RECALIBRATION">SENSOR_RECALIBRATION (Apply zero offset)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Executed By (Badge ID)</label>
+            <input type="text" id="rem-exec" value="OPR-LEAD-202" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-slate-200">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Approved By (Supervisor)</label>
+            <input type="text" id="rem-appr" value="QA-MGR-901" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-slate-200">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Inspection Findings & Notes</label>
+          <textarea id="rem-notes" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-slate-200" placeholder="Physical condition confirmed; root-cause addressed."></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+          <button type="submit" class="px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium">Confirm & Sign-Off</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="bg-slate-900 border-t border-slate-800 py-3 text-center text-xs text-slate-500">
+    Warehouse Environmental Monitoring & Traceability Engine &bull; Deterministic Synthetic Data (Seed: 20261022)
+  </footer>
+
+  <script>
+    let globalZones = [];
+    let globalAlarms = [];
+    let globalSensors = [];
+
+    async function fetchAPI(endpoint) {
+      try {
+        const res = await fetch(endpoint);
+        return await res.json();
+      } catch (err) {
+        console.error("API error:", err);
+        return null;
+      }
+    }
+
+    async function loadKPIs() {
+      const data = await fetchAPI('/api/kpi/overview');
+      if (!data) return;
+      document.getElementById('kpi-zones').innerText = `${data.total_warehouses} / ${data.total_zones}`;
+      document.getElementById('kpi-alarms').innerText = data.active_alarms;
+      document.getElementById('kpi-crit-alarms').innerText = `${data.critical_alarms} Critical`;
+      document.getElementById('kpi-uptime').innerText = `${data.sensor_availability_pct}%`;
+      document.getElementById('kpi-lots').innerText = data.total_lots.toLocaleString();
+      document.getElementById('kpi-value').innerText = `$${(data.total_inventory_value_usd / 1000).toFixed(1)}k`;
+      document.getElementById('kpi-loss').innerText = `$${(data.total_loss_usd / 1000).toFixed(1)}k`;
+    }
+
+    async function loadZones() {
+      const zones = await fetchAPI('/api/zones');
+      if (!zones) return;
+      globalZones = zones;
+      const grid = document.getElementById('zones-grid');
+      grid.innerHTML = zones.map(z => {
+        const typeColor = {
+          'ULTRA_LOW_FREEZE': 'border-cyan-500/30 bg-cyan-950/20 text-cyan-400',
+          'COLD_STORAGE': 'border-blue-500/30 bg-blue-950/20 text-blue-400',
+          'CONTROLLED_ROOM_TEMP': 'border-emerald-500/30 bg-emerald-950/20 text-emerald-400',
+          'AMBIENT': 'border-slate-500/30 bg-slate-900/50 text-slate-300',
+          'HUMIDITY_CONTROLLED': 'border-purple-500/30 bg-purple-950/20 text-purple-400',
+          'LOADING_DOCK': 'border-amber-500/30 bg-amber-950/20 text-amber-400',
+        }[z.zone_type] || 'border-slate-700 bg-slate-900 text-slate-300';
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${typeColor}">${z.zone_type}</span>
+                <h3 class="text-sm font-bold text-white mt-1.5">${z.zone_name}</h3>
+                <p class="text-[11px] font-mono text-slate-400">${z.zone_id}</p>
+              </div>
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 ring-4 ring-emerald-500/20"></span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-800/80">
+              <div class="bg-slate-800/50 p-2 rounded">
+                <span class="text-slate-400 block text-[10px]">Temp Range</span>
+                <span class="font-mono text-white font-medium">${z.temp_min_c} to ${z.temp_max_c} °C</span>
+              </div>
+              <div class="bg-slate-800/50 p-2 rounded">
+                <span class="text-slate-400 block text-[10px]">Humidity Range</span>
+                <span class="font-mono text-white font-medium">${z.humidity_min_pct} - ${z.humidity_max_pct}%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+              <span><i class="fa-solid fa-users text-slate-500 mr-1"></i> Max Occ: <strong class="text-slate-200">${z.max_occupancy}</strong></span>
+              <span><i class="fa-solid fa-door-open text-slate-500 mr-1"></i> Door Limit: <strong class="text-slate-200">${z.max_door_open_sec}s</strong></span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadAlarms() {
+      const alarms = await fetchAPI('/api/alarms');
+      if (!alarms) return;
+      globalAlarms = alarms;
+      renderAlarms();
+
+      // Populate trace alarm selector
+      const select = document.getElementById('trace-alarm-select');
+      select.innerHTML = '<option value="">-- Choose an Alarm --</option>' + 
+        alarms.map(a => `<option value="${a.alarm_id}">${a.alarm_id} [${a.severity}] (${a.alarm_type}) - ${a.affected_lot_count} lots affected</option>`).join('');
+    }
+
+    function renderAlarms() {
+      const severityFilter = document.getElementById('filter-severity').value;
+      const statusFilter = document.getElementById('filter-status').value;
+
+      let filtered = globalAlarms;
+      if (severityFilter) filtered = filtered.filter(a => a.severity === severityFilter);
+      if (statusFilter) filtered = filtered.filter(a => a.status === statusFilter);
+
+      const tbody = document.getElementById('alarms-table-body');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="p-6 text-center text-slate-500">No alarms matching criteria.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(a => {
+        const sevBadge = {
+          'CRITICAL': 'bg-rose-500/10 text-rose-400 border border-rose-500/30',
+          'HIGH': 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
+          'MEDIUM': 'bg-blue-500/10 text-blue-400 border border-blue-500/30',
+        }[a.severity] || 'bg-slate-800 text-slate-300';
+
+        const statusBadge = a.status === 'RESOLVED' 
+          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
+          : 'bg-rose-500/10 text-rose-400 border border-rose-500/30 animate-pulse';
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="px-4 py-3 font-mono font-medium text-slate-200">${a.alarm_id}</td>
+            <td class="px-4 py-3 text-slate-300 font-mono text-[11px]">${a.zone_id}</td>
+            <td class="px-4 py-3 text-slate-300">${a.alarm_type}</td>
+            <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${sevBadge}">${a.severity}</span></td>
+            <td class="px-4 py-3 text-slate-400">${a.duration_minutes ? a.duration_minutes + 'm' : '-'}</td>
+            <td class="px-4 py-3 font-mono text-slate-300">${a.trigger_value.toFixed(1)} / ${a.threshold_limit.toFixed(1)}</td>
+            <td class="px-4 py-3 font-bold ${a.affected_lot_count > 0 ? 'text-amber-400' : 'text-slate-400'}">${a.affected_lot_count}</td>
+            <td class="px-4 py-3 font-mono text-slate-200">$${a.total_loss_usd.toFixed(2)}</td>
+            <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusBadge}">${a.status}</span></td>
+            <td class="px-4 py-3 text-right">
+              ${a.status !== 'RESOLVED' 
+                ? `<button onclick="openRemediationModal('${a.alarm_id}')" class="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium">Remediate</button>`
+                : `<span class="text-xs text-slate-500"><i class="fa-solid fa-check text-emerald-400"></i> Done</span>`}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadAlarmAffectedLots(alarmId) {
+      if (!alarmId) return;
+      const data = await fetchAPI(`/api/alarms/${alarmId}/affected-lots`);
+      const tbody = document.getElementById('trace-table-body');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-500">No inventory lots were dwelling in this zone during excursion window (or unlinked).</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(row => {
+        const riskColor = {
+          'CRITICAL_VIOLATION': 'bg-rose-500/10 text-rose-400 border border-rose-500/30',
+          'MODERATE_EXPOSURE': 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
+          'LOW_RISK': 'bg-blue-500/10 text-blue-400 border border-blue-500/30',
+        }[row.risk_category] || 'bg-slate-800 text-slate-300';
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="px-4 py-3 font-mono font-bold text-white">${row.lot_id}</td>
+            <td class="px-4 py-3 text-slate-300 font-mono text-[11px]">${row.product_code}</td>
+            <td class="px-4 py-3 text-slate-400 font-mono text-[11px]">${row.requirement_id}</td>
+            <td class="px-4 py-3 font-mono text-slate-300">${row.exposure_hours.toFixed(2)} hrs</td>
+            <td class="px-4 py-3 font-mono font-bold text-amber-400">${row.degree_hours.toFixed(2)} °C·h</td>
+            <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${riskColor}">${row.risk_category}</span></td>
+            <td class="px-4 py-3 font-mono text-slate-300">${row.quantity}</td>
+            <td class="px-4 py-3 font-mono text-cyan-400 font-medium">$${row.total_value_usd.toFixed(2)}</td>
+            <td class="px-4 py-3 font-bold ${row.lifecycle_state === 'CONDEMNED' ? 'text-rose-400' : 'text-slate-300'}">${row.lifecycle_state}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadSensors() {
+      const sensors = await fetchAPI('/api/sensors');
+      if (!sensors) return;
+      globalSensors = sensors;
+      const tbody = document.getElementById('sensors-table-body');
+      tbody.innerHTML = sensors.map(s => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="px-4 py-3 font-mono font-medium text-slate-200">${s.sensor_id}</td>
+          <td class="px-4 py-3 font-mono text-slate-400 text-[11px]">${s.zone_id}</td>
+          <td class="px-4 py-3 text-slate-300">${s.sensor_type}</td>
+          <td class="px-4 py-3 font-mono text-slate-400 text-[11px]">${s.model_number}</td>
+          <td class="px-4 py-3 font-mono ${s.battery_level_pct < 20 ? 'text-rose-400' : 'text-emerald-400'}">${s.battery_level_pct}%</td>
+          <td class="px-4 py-3 font-mono text-slate-400">${s.calibration_due}</td>
+          <td class="px-4 py-3 font-mono ${s.drift_offset !== 0 ? 'text-amber-400 font-bold' : 'text-slate-400'}">${s.drift_offset > 0 ? '+' : ''}${s.drift_offset}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">${s.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadGroundTruth() {
+      const gt = await fetchAPI('/api/ground-truth');
+      if (!gt) return;
+      const tbody = document.getElementById('groundtruth-table-body');
+      tbody.innerHTML = gt.map(item => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="px-4 py-3 font-mono font-medium text-purple-400">${item.anomaly_id}</td>
+          <td class="px-4 py-3 font-bold text-amber-400">${item.issue_type}</td>
+          <td class="px-4 py-3 font-mono text-slate-300 text-[11px]">${item.entity_type} &bull; ${item.entity_id}</td>
+          <td class="px-4 py-3 font-mono text-slate-400 text-[11px]">${item.zone_id}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">${item.expected_severity}</span></td>
+          <td class="px-4 py-3 text-slate-300 font-mono text-[11px]">${item.expected_alarm_type || '-'}</td>
+          <td class="px-4 py-3 text-slate-400 text-xs">${item.rationale}</td>
+        </tr>
+      `).join('');
+    }
+
+    function switchTab(tabId) {
+      ['zones', 'alarms', 'traceability', 'sensors', 'groundtruth'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${t}`).className = 'pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2';
+      });
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${tabId}`).className = 'pb-3 border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2';
+    }
+
+    function openRemediationModal(alarmId) {
+      document.getElementById('rem-alarm-id').value = alarmId;
+      document.getElementById('remediation-modal').classList.remove('hidden');
+      document.getElementById('remediation-modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('remediation-modal').classList.add('hidden');
+      document.getElementById('remediation-modal').classList.remove('flex');
+    }
+
+    async function submitRemediation(e) {
+      e.preventDefault();
+      const payload = {
+        alarm_id: document.getElementById('rem-alarm-id').value,
+        inspector_role: document.getElementById('rem-role').value,
+        action_type: document.getElementById('rem-action').value,
+        executed_by: document.getElementById('rem-exec').value,
+        approved_by: document.getElementById('rem-appr').value,
+        findings: document.getElementById('rem-notes').value || 'Remediation completed as scheduled.'
+      };
+      const res = await fetch('/api/remediations/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        closeModal();
+        refreshAll();
+      } else {
+        alert('Failed to execute remediation');
+      }
+    }
+
+    async function refreshAll() {
+      await loadKPIs();
+      await loadZones();
+      await loadAlarms();
+      await loadSensors();
+      await loadGroundTruth();
+    }
+
+    window.onload = refreshAll;
+  </script>
+</body>
+</html>

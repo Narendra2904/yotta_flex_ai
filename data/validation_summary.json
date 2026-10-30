@@ -1,0 +1,260 @@
+{
+  "is_valid": true,
+  "total_checks": 34,
+  "passed_checks": 34,
+  "failed_checks": 0,
+  "details": [
+    {
+      "check": "PK Uniqueness: Warehouse",
+      "status": "PASS",
+      "message": "10 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "Warehouse",
+        "count": 10,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: Zone",
+      "status": "PASS",
+      "message": "100 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "Zone",
+        "count": 100,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: StorageRequirement",
+      "status": "PASS",
+      "message": "5 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "StorageRequirement",
+        "count": 5,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: Sensor",
+      "status": "PASS",
+      "message": "500 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "Sensor",
+        "count": 500,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: SensorReading",
+      "status": "PASS",
+      "message": "999863 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "SensorReading",
+        "count": 999863,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: DoorEvent",
+      "status": "PASS",
+      "message": "2500 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "DoorEvent",
+        "count": 2500,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: InventoryLot",
+      "status": "PASS",
+      "message": "10000 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "InventoryLot",
+        "count": 10000,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: Alarm",
+      "status": "PASS",
+      "message": "218 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "Alarm",
+        "count": 218,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: AlarmAffectedLot",
+      "status": "PASS",
+      "message": "7464 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "AlarmAffectedLot",
+        "count": 7464,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: Inspection",
+      "status": "PASS",
+      "message": "218 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "Inspection",
+        "count": 218,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: Remediation",
+      "status": "PASS",
+      "message": "218 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "Remediation",
+        "count": 218,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "PK Uniqueness: GroundTruth",
+      "status": "PASS",
+      "message": "312 unique PKs, 0 duplicates detected.",
+      "meta": {
+        "entity": "GroundTruth",
+        "count": 312,
+        "duplicates": 0
+      }
+    },
+    {
+      "check": "FK Integrity: zones.warehouse_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: sensors.zone_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: sensor_readings.sensor_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: door_events.zone_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: inventory_lots.zone_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: inventory_lots.requirement_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: alarms.zone_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: alarm_affected_lots.alarm_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: alarm_affected_lots.lot_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: inspections.alarm_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "FK Integrity: remediations.inspection_id",
+      "status": "PASS",
+      "message": "0 orphans",
+      "meta": {}
+    },
+    {
+      "check": "Enum Check: warehouses.operational_status",
+      "status": "PASS",
+      "message": "0 invalid status",
+      "meta": {}
+    },
+    {
+      "check": "Enum Check: inventory_lots.lifecycle_state",
+      "status": "PASS",
+      "message": "0 invalid states",
+      "meta": {}
+    },
+    {
+      "check": "Enum Check: alarms.severity",
+      "status": "PASS",
+      "message": "0 invalid severities",
+      "meta": {}
+    },
+    {
+      "check": "Date Ordering: inventory_lots arrival <= departure",
+      "status": "PASS",
+      "message": "0 inversions",
+      "meta": {}
+    },
+    {
+      "check": "Date Ordering: door_events opened_at <= closed_at",
+      "status": "PASS",
+      "message": "0 inversions",
+      "meta": {}
+    },
+    {
+      "check": "Date Ordering: alarms start_time <= end_time",
+      "status": "PASS",
+      "message": "0 inversions",
+      "meta": {}
+    },
+    {
+      "check": "Date Ordering: alarm_affected_lots overlap_start <= overlap_end",
+      "status": "PASS",
+      "message": "0 inversions",
+      "meta": {}
+    },
+    {
+      "check": "Arithmetic: inventory_lots total_value == qty * unit_price",
+      "status": "PASS",
+      "message": "0 errors",
+      "meta": {}
+    },
+    {
+      "check": "Arithmetic: door_events duration_sec reconciles to closed_at - opened_at",
+      "status": "PASS",
+      "message": "0 errors",
+      "meta": {}
+    },
+    {
+      "check": "Arithmetic: alarm.affected_lot_count reconciles to bridges count",
+      "status": "PASS",
+      "message": "0 mismatches",
+      "meta": {}
+    },
+    {
+      "check": "Edge Case Coverage: All 4 prompt-required edge cases present in ground truth",
+      "status": "PASS",
+      "message": "Present: ['THERMAL_EXCURSION_CHILLER_FAIL', 'SILENT_SENSOR_OUTAGE_GAP', 'UNLINKED_ALARM_AFFECTED_LOTS', 'SENSOR_DRIFT_EXCESSIVE', 'AMBIGUOUS_SENSOR_ZONE_MAPPING', 'INCOMPATIBLE_ZONE_ASSIGNMENT'], Missing: []",
+      "meta": {}
+    }
+  ]
+}

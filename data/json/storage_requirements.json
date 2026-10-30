@@ -1,0 +1,67 @@
+[
+  {
+    "requirement_id": "REQ-VACCINE-ULTRA",
+    "profile_name": "mRNA Vaccines / Ultra-Cold Cryo (-25C to -15C)",
+    "allowed_zone_types": "ULTRA_LOW_FREEZE",
+    "temp_crit_min_c": -28.0,
+    "temp_warn_min_c": -25.0,
+    "temp_warn_max_c": -15.0,
+    "temp_crit_max_c": -12.0,
+    "humidity_crit_min_pct": 10.0,
+    "humidity_crit_max_pct": 50.0,
+    "max_excursion_duration_min": 30,
+    "status": "ACTIVE"
+  },
+  {
+    "requirement_id": "REQ-PHARMA-COLD",
+    "profile_name": "Refrigerated Biologics & Insulin (+2C to +8C)",
+    "allowed_zone_types": "COLD_STORAGE",
+    "temp_crit_min_c": 1.5,
+    "temp_warn_min_c": 2.0,
+    "temp_warn_max_c": 8.0,
+    "temp_crit_max_c": 9.5,
+    "humidity_crit_min_pct": 25.0,
+    "humidity_crit_max_pct": 65.0,
+    "max_excursion_duration_min": 45,
+    "status": "ACTIVE"
+  },
+  {
+    "requirement_id": "REQ-PERISHABLE-FRESH",
+    "profile_name": "Fresh Produce & Dairy (+1C to +6C)",
+    "allowed_zone_types": "COLD_STORAGE,LOADING_DOCK",
+    "temp_crit_min_c": 0.5,
+    "temp_warn_min_c": 1.0,
+    "temp_warn_max_c": 6.5,
+    "temp_crit_max_c": 8.0,
+    "humidity_crit_min_pct": 40.0,
+    "humidity_crit_max_pct": 85.0,
+    "max_excursion_duration_min": 60,
+    "status": "ACTIVE"
+  },
+  {
+    "requirement_id": "REQ-DRY-AMBIENT",
+    "profile_name": "Dry Goods & Standard Tablets (+15C to +25C)",
+    "allowed_zone_types": "CONTROLLED_ROOM_TEMP,AMBIENT",
+    "temp_crit_min_c": 12.0,
+    "temp_warn_min_c": 15.0,
+    "temp_warn_max_c": 25.0,
+    "temp_crit_max_c": 30.0,
+    "humidity_crit_min_pct": 15.0,
+    "humidity_crit_max_pct": 70.0,
+    "max_excursion_duration_min": 180,
+    "status": "ACTIVE"
+  },
+  {
+    "requirement_id": "REQ-MOISTURE-SENSITIVE",
+    "profile_name": "Active API & Moisture Sensitive Reagents",
+    "allowed_zone_types": "HUMIDITY_CONTROLLED",
+    "temp_crit_min_c": 15.0,
+    "temp_warn_min_c": 18.0,
+    "temp_warn_max_c": 22.0,
+    "temp_crit_max_c": 26.0,
+    "humidity_crit_min_pct": 10.0,
+    "humidity_crit_max_pct": 40.0,
+    "max_excursion_duration_min": 40,
+    "status": "ACTIVE"
+  }
+]
